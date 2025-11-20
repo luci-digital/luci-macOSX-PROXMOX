@@ -1,0 +1,119 @@
+#!/bin/bash
+
+#########################################################################################################################
+#
+# Script: orion-vm-watchdog
+# Purpose: Monitor critical VMs and restart if needed
+# Description: Ensures router and critical VMs stay running
+#
+#########################################################################################################################
+
+# Configuration
+ROUTER_VM_ID="${ROUTER_VM_ID:-200}"
+MACOS_VM_ID="${MACOS_VM_ID:-100}"
+CHECK_INTERVAL="${CHECK_INTERVAL:-30}"
+RESTART_ON_FAILURE="${RESTART_ON_FAILURE:-true}"
+LOG_FILE="/var/log/orion/vm-watchdog.log"
+STATE_FILE="/var/run/orion/vm-watchdog-state.json"
+
+# Create directories
+mkdir -p /var/log/orion /var/run/orion
+
+# Logging function
+log() {
+    local level=$1
+    shift
+    local message="$@"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "${timestamp} [${level}] ${message}" | tee -a "$LOG_FILE"
+}
+
+# Check VM status
+check_vm() {
+    local vm_id=$1
+    local vm_name=$2
+    local auto_restart=$3
+
+    if qm status "$vm_id" 2>/dev/null | grep -q "running"; then
+        log INFO "VM $vm_id ($vm_name) is running"
+        return 0
+    elif qm status "$vm_id" 2>/dev/null | grep -q "stopped"; then
+        log WARNING "VM $vm_id ($vm_name) is stopped"
+
+        if [[ "$auto_restart" == "true" && "$RESTART_ON_FAILURE" == "true" ]]; then
+            log INFO "Attempting to start VM $vm_id ($vm_name)..."
+            if qm start "$vm_id" >> "$LOG_FILE" 2>&1; then
+                log INFO "Successfully started VM $vm_id ($vm_name)"
+                logger -t orion-vm-watchdog -p daemon.notice "Restarted VM $vm_id ($vm_name)"
+                return 0
+            else
+                log ERROR "Failed to start VM $vm_id ($vm_name)"
+                logger -t orion-vm-watchdog -p daemon.err "Failed to restart VM $vm_id ($vm_name)"
+                return 1
+            fi
+        fi
+        return 1
+    else
+        log WARNING "VM $vm_id does not exist or status unknown"
+        return 1
+    fi
+}
+
+# Update state file
+update_state() {
+    local router_status=$1
+    local macos_status=$2
+
+    cat > "$STATE_FILE" <<EOF
+{
+    "timestamp": "$(date -Iseconds)",
+    "vms": {
+        "router": {
+            "id": $ROUTER_VM_ID,
+            "name": "ORION-Router",
+            "status": "$router_status",
+            "critical": true
+        },
+        "macos": {
+            "id": $MACOS_VM_ID,
+            "name": "HACK-Sequoia-01",
+            "status": "$macos_status",
+            "critical": false
+        }
+    }
+}
+EOF
+}
+
+# Main monitoring loop
+log INFO "ORION VM Watchdog starting..."
+log INFO "Monitoring VMs: Router ($ROUTER_VM_ID), macOS ($MACOS_VM_ID)"
+log INFO "Check interval: ${CHECK_INTERVAL} seconds"
+log INFO "Auto-restart on failure: $RESTART_ON_FAILURE"
+
+while true; do
+    # Check router VM (critical - always restart)
+    router_status="unknown"
+    if check_vm "$ROUTER_VM_ID" "ORION-Router" "true"; then
+        router_status="running"
+    else
+        router_status="stopped"
+    fi
+
+    # Check macOS VM (non-critical - don't auto-restart)
+    macos_status="unknown"
+    if qm status "$MACOS_VM_ID" >/dev/null 2>&1; then
+        if check_vm "$MACOS_VM_ID" "HACK-Sequoia-01" "false"; then
+            macos_status="running"
+        else
+            macos_status="stopped"
+        fi
+    else
+        macos_status="not_configured"
+    fi
+
+    # Update state
+    update_state "$router_status" "$macos_status"
+
+    sleep "$CHECK_INTERVAL"
+done

@@ -1,0 +1,340 @@
+{
+  "hardware": {
+    "manufacturer": "Dell",
+    "model": "PowerEdge R730",
+    "serviceTag": "CQ5QBM2",
+    "cpu": {
+      "model": "Intel Xeon E5-2690 v4",
+      "sockets": 2,
+      "coresPerSocket": 14,
+      "threadsPerCore": 2,
+      "totalCores": 28,
+      "totalThreads": 56
+    },
+    "memory": {
+      "total": "384GB",
+      "modules": [
+        {
+          "slot": "A1-A6",
+          "size": "32GB",
+          "type": "DDR4-2400",
+          "manufacturer": "Samsung"
+        },
+        {
+          "slot": "B1-B6",
+          "size": "32GB",
+          "type": "DDR4-2400",
+          "manufacturer": "Samsung"
+        }
+      ]
+    },
+    "storage": {
+      "controller": "PERC H730 Mini",
+      "raidLevel": "RAID 10",
+      "disks": []
+    },
+    "networkInterfaces": [
+      {
+        "name": "eno1",
+        "mac": "D0:94:66:24:96:7C",
+        "speed": "1GbE",
+        "type": "Integrated",
+        "purpose": "Proxmox Management"
+      },
+      {
+        "name": "eno2",
+        "mac": "D0:94:66:24:96:7D",
+        "speed": "1GbE",
+        "type": "Integrated",
+        "purpose": "Reserved"
+      },
+      {
+        "name": "eno3",
+        "mac": "D0:94:66:24:96:7E",
+        "speed": "10GbE",
+        "type": "Integrated",
+        "purpose": "WAN (Telus Fiber)",
+        "bridge": "vmbr0"
+      },
+      {
+        "name": "eno4",
+        "mac": "D0:94:66:24:96:80",
+        "speed": "10GbE",
+        "type": "Integrated",
+        "purpose": "LAN (Internal Network)",
+        "bridge": "vmbr1"
+      },
+      {
+        "name": "eno5",
+        "mac": "",
+        "speed": "10GbE",
+        "type": "Integrated",
+        "purpose": "macOS VM Network",
+        "bridge": "vmbr2"
+      },
+      {
+        "name": "eno6",
+        "mac": "",
+        "speed": "10GbE",
+        "type": "Integrated",
+        "purpose": "Storage Network",
+        "bridge": "vmbr3"
+      },
+      {
+        "name": "enp3s0f0",
+        "mac": "",
+        "speed": "10GbE",
+        "type": "Slot 3",
+        "purpose": "Router VM Passthrough (Optional)"
+      },
+      {
+        "name": "enp3s0f1",
+        "mac": "",
+        "speed": "10GbE",
+        "type": "Slot 3",
+        "purpose": "Router VM Passthrough (Optional)"
+      }
+    ]
+  },
+  "network": {
+    "proxmox": {
+      "hostname": "orion-pve.local",
+      "ip": "192.168.100.10",
+      "netmask": "24",
+      "gateway": "192.168.100.1",
+      "dns": ["1.1.1.1", "8.8.8.8"],
+      "managementInterface": "eno1"
+    },
+    "bridges": {
+      "vmbr0": {
+        "interface": "eno3",
+        "purpose": "WAN - Router VM",
+        "vlanAware": true,
+        "stp": false
+      },
+      "vmbr1": {
+        "interface": "eno4",
+        "purpose": "LAN - Internal Network",
+        "ip": "192.168.100.1/24",
+        "vlanAware": true,
+        "stp": false
+      },
+      "vmbr2": {
+        "interface": "eno5",
+        "purpose": "macOS VM Network",
+        "vlanAware": false,
+        "stp": false
+      },
+      "vmbr3": {
+        "interface": "eno6",
+        "purpose": "Storage Network",
+        "vlanAware": false,
+        "stp": false
+      }
+    },
+    "telus": {
+      "isp": "Telus Communications",
+      "connection": "Fiber 10Gbps",
+      "bgp": {
+        "localAS": "394955",
+        "remoteAS": "6939",
+        "gateways": [
+          {
+            "name": "Telus Gateway 1",
+            "ip": "206.75.1.127",
+            "priority": 1,
+            "enabled": true
+          },
+          {
+            "name": "Telus Gateway 2",
+            "ip": "206.75.1.47",
+            "priority": 2,
+            "enabled": true
+          },
+          {
+            "name": "Telus Gateway 3",
+            "ip": "206.75.1.48",
+            "priority": 3,
+            "enabled": true
+          }
+        ]
+      },
+      "ipv6": {
+        "prefix": "2602:F674::/48",
+        "allocation": "2602:F674:1000::/64"
+      }
+    }
+  },
+  "virtualMachines": {
+    "router": {
+      "id": 200,
+      "name": "ORION-Router",
+      "os": "pfSense CE 2.7.2",
+      "resources": {
+        "cpu": {
+          "cores": 8,
+          "type": "host",
+          "sockets": 1,
+          "numa": true
+        },
+        "memory": "32GB",
+        "storage": "50GB"
+      },
+      "network": [
+        {
+          "id": "net0",
+          "bridge": "vmbr0",
+          "model": "virtio",
+          "purpose": "WAN"
+        },
+        {
+          "id": "net1",
+          "bridge": "vmbr1",
+          "model": "virtio",
+          "purpose": "LAN"
+        },
+        {
+          "id": "net2",
+          "bridge": "vmbr2",
+          "model": "virtio",
+          "purpose": "OPT1"
+        },
+        {
+          "id": "net3",
+          "bridge": "vmbr3",
+          "model": "virtio",
+          "purpose": "OPT2"
+        }
+      ],
+      "autostart": true,
+      "startupOrder": 1,
+      "startupDelay": 30
+    },
+    "macOS": {
+      "id": 100,
+      "name": "HACK-Sequoia-01",
+      "os": "macOS Sequoia 15",
+      "resources": {
+        "cpu": {
+          "cores": 12,
+          "type": "Haswell-noTSX",
+          "sockets": 1,
+          "numa": false
+        },
+        "memory": "64GB",
+        "storage": "256GB"
+      },
+      "network": [
+        {
+          "id": "net0",
+          "bridge": "vmbr2",
+          "model": "virtio",
+          "purpose": "Primary"
+        }
+      ],
+      "opencore": {
+        "version": "1.0.4",
+        "smbios": "iMacPro1,1",
+        "sip": "enabled",
+        "secureBootModel": "Default"
+      },
+      "autostart": false,
+      "startupOrder": 10
+    }
+  },
+  "resourceAllocation": {
+    "proxmoxHost": {
+      "cpuCores": 4,
+      "memory": "16GB",
+      "purpose": "Hypervisor overhead"
+    },
+    "routerVM": {
+      "cpuCores": 8,
+      "memory": "32GB",
+      "purpose": "Network routing, BGP, firewall"
+    },
+    "macOSPrimary": {
+      "cpuCores": 12,
+      "memory": "64GB",
+      "purpose": "macOS Sequoia development"
+    },
+    "macOSSecondary": {
+      "cpuCores": 8,
+      "memory": "32GB",
+      "purpose": "macOS Sonoma testing (optional)"
+    },
+    "developmentVMs": {
+      "cpuCores": 24,
+      "memory": "240GB",
+      "purpose": "Linux/Windows VMs, containers, CI/CD"
+    },
+    "totalAllocated": {
+      "cpuCores": 56,
+      "memory": "384GB"
+    }
+  },
+  "monitoring": {
+    "prometheus": {
+      "enabled": true,
+      "port": 9090,
+      "retention": "30d"
+    },
+    "grafana": {
+      "enabled": true,
+      "port": 3000,
+      "dashboards": [
+        "Proxmox Node Exporter",
+        "pfSense Dashboard",
+        "VM Resource Usage"
+      ]
+    },
+    "alerting": {
+      "enabled": true,
+      "channels": [
+        {
+          "type": "email",
+          "address": "admin@orion.local"
+        }
+      ],
+      "rules": [
+        "High CPU usage (>90% for 5 minutes)",
+        "High memory usage (>95%)",
+        "BGP session down",
+        "Gateway unreachable",
+        "Disk usage >85%",
+        "VM offline unexpectedly"
+      ]
+    }
+  },
+  "backup": {
+    "enabled": true,
+    "schedule": "daily 2:00 AM",
+    "retention": {
+      "daily": 7,
+      "weekly": 4,
+      "monthly": 3
+    },
+    "targets": [
+      {
+        "type": "PBS",
+        "name": "Proxmox Backup Server",
+        "location": "local-pbs"
+      },
+      {
+        "type": "NFS",
+        "name": "Network Storage",
+        "location": "192.168.100.50:/backup"
+      }
+    ],
+    "excludes": [
+      "VM 100 - HACK-Sequoia-01 (optional - large disk)"
+    ]
+  },
+  "deployment": {
+    "version": "1.0.0",
+    "deployedDate": "",
+    "deployedBy": "ORION Automation Script",
+    "lastModified": "2025-01-19",
+    "status": "pending"
+  }
+}
