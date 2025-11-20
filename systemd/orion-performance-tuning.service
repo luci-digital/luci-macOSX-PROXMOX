@@ -1,0 +1,16 @@
+[Unit]
+Description=ORION Performance Tuning (One-time at boot)
+Documentation=https://github.com/luci-digital/Dell_R730_CQ5QBM2_ORION
+After=local-fs.target
+Before=network-pre.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/orion-performance-tuning
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=orion-performance-tuning
+
+[Install]
+WantedBy=multi-user.target
