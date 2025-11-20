@@ -1,6 +1,8 @@
 <div align="center">
-  
-# 🚀 OSX-PROXMOX - Run macOS on ANY Computer (AMD & Intel)
+
+# 🚀 Dell R730 ORION - Hybrid Network Infrastructure
+
+## OSX-PROXMOX + NixOS Router + AI Agent + BGP Integration
 
 ![GitHub stars](https://img.shields.io/github/stars/luchina-gabriel/osx-proxmox?style=flat-square)
 ![GitHub forks](https://img.shields.io/github/forks/luchina-gabriel/OSX-PROXMOX?style=flat-square)
@@ -9,8 +11,92 @@
 
 </div>
 
+---
+
+## 🎯 ORION Hybrid Architecture
+
+This repository combines the power of **OSX-PROXMOX** for macOS virtualization with a complete enterprise-grade network infrastructure for the **Dell PowerEdge R730 (CQ5QBM2)**.
+
+### ✨ What's Included
+
+- ✅ **Proxmox VE** - Enterprise hypervisor with web management
+- ✅ **NixOS + VyOS Router** - High-performance routing with BGP (AS 394955)
+- ✅ **AI Autonomous Agent** - Intelligent network monitoring and self-healing
+- ✅ **macOS Sequoia** - Full macOS 15 support for development
+- ✅ **iDRAC Automation** - Complete remote management via Redfish API
+- ✅ **Prometheus + Grafana** - Real-time monitoring and dashboards
+- ✅ **BGP Routing** - Multi-peer BGP with Telus (AS 6939)
+
+### 🚀 Quick Start (ORION Hybrid)
+
+```bash
+# Clone repository
+git clone https://github.com/luci-digital/luci-macOSX-PROXMOX.git
+cd luci-macOSX-PROXMOX
+
+# Install dependencies
+pip3 install requests
+
+# Run automated deployment
+python3 deploy-orion-hybrid.py
+```
+
+**Documentation**:
+- 📘 [Hybrid Architecture Guide](ORION_HYBRID_ARCHITECTURE.md) - Complete architecture documentation
+- 🚀 [Quick Start Guide](QUICKSTART_HYBRID.md) - Get started in 5 minutes
+- 🔧 [VM Configurations](vm-configs/README.md) - NixOS configuration files
+- 📊 [Proxmox Integration](DELL_R730_ORION_PROXMOX_INTEGRATION.md) - Dell R730 specific setup
+
+### 🏗️ Architecture Overview
+
+```
+Dell R730 ORION (384GB RAM, 56 threads)
+├─ Proxmox VE 8.x (Hypervisor)
+│  ├─ VM 200: NixOS + VyOS Router (8 cores, 32GB)
+│  │  └─ BGP, Firewall, DHCP, DNS, NAT
+│  ├─ VM 300: AI Agent (4 cores, 16GB)
+│  │  └─ Autonomous monitoring, Prometheus, Grafana
+│  └─ VM 100: macOS Sequoia (12 cores, 64GB)
+│     └─ Development environment
+└─ iDRAC Enterprise - Full remote management
+```
+
+### 📦 Repository Structure
+
+```
+luci-macOSX-PROXMOX/
+├── deploy-orion-hybrid.py          # Main deployment automation
+├── deploy-orion.sh                 # Legacy Proxmox deployment
+├── orion-config.json               # Hardware & VM configuration
+├── vm-configs/                     # NixOS VM configurations
+│   ├── router-vm/                  # Router VM (NixOS + VyOS)
+│   └── ai-agent-vm/                # AI monitoring agent
+├── ORION_HYBRID_ARCHITECTURE.md    # Full architecture docs
+├── QUICKSTART_HYBRID.md            # Quick start guide
+└── tools/                          # Utility scripts
+```
+
+### 🌟 Key Features
+
+**Hybrid Design**: Best of both worlds - virtualization flexibility with bare-metal routing performance
+
+**Full Automation**: Deploy entire stack with one command via iDRAC Redfish API
+
+**Declarative Configuration**: NixOS-based router and AI agent for reproducible deployments
+
+**AI-Powered Monitoring**: Autonomous agent that monitors, alerts, and self-heals network issues
+
+**BGP Routing**: Production-grade routing with BIRD2, supporting multi-peer BGP
+
+**macOS Development**: Native macOS Sequoia environment via OSX-PROXMOX
+
+---
+
+## 🍎 Original OSX-PROXMOX Guide
+
 ![v15 - Sequoia](https://github.com/user-attachments/assets/4efd8874-dbc8-48b6-a485-73f7c38a5e06)
-Easily install macOS on Proxmox VE with just a few steps! This guide provides the simplest and most effective way to set up macOS on Proxmox, whether you're using AMD or Intel hardware.
+
+The following guide provides the original OSX-PROXMOX installation method for running macOS on Proxmox VE with AMD or Intel hardware.
 
 ---
 
