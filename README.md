@@ -34,12 +34,25 @@ This repository combines the power of **OSX-PROXMOX** for macOS virtualization w
 git clone https://github.com/luci-digital/luci-macOSX-PROXMOX.git
 cd luci-macOSX-PROXMOX
 
+# Optional: Setup smart dev environment (recommended!)
+./scripts/setup-dev-env.sh
+exec zsh  # Restart shell
+
 # Install dependencies
 pip3 install requests
 
 # Run automated deployment
 python3 deploy-orion-hybrid.py
+# OR with smart environment:
+orion-deploy
 ```
+
+**Smart Development Environment** 🧠:
+- 🎯 Auto-loads when entering directory
+- ⚡ 50+ helpful commands and aliases (`orion-help`)
+- 🔑 Auto-manages SSH keys and Python venv
+- 📊 Quick access: `grafana`, `ssh-router`, `orion-status`
+- 📚 [Setup Guide](DEV_ENVIRONMENT.md)
 
 **Documentation**:
 - 📘 [Hybrid Architecture Guide](ORION_HYBRID_ARCHITECTURE.md) - Complete architecture documentation
