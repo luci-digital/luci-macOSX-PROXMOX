@@ -461,6 +461,7 @@ make k8s-deploy
 - **[Helper Scripts Integration](docs/HELPER_SCRIPTS_INTEGRATION.md)** - LXC deployment guide
 - **[IPv6 Routing](docs/IPV6_ROUTING_INTEGRATION.md)** - BGP configuration
 - **[Claude Code Integration](docs/CLAUDE_CODE_INTEGRATION.md)** - AI-assisted development setup
+- **[Development Environment](docs/DEVELOPMENT_ENVIRONMENT.md)** - Zsh, Oh My Zsh, Antigen setup
 - **[Architecture Review](ARCHITECTURE_REVIEW.md)** - AI engineering analysis
 
 ---

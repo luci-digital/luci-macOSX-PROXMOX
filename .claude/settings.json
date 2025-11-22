@@ -9,7 +9,8 @@
   "env": {
     "ORION_PROJECT": "true",
     "TERRAFORM_LOG": "INFO",
-    "ANSIBLE_STDOUT_CALLBACK": "yaml"
+    "ANSIBLE_STDOUT_CALLBACK": "yaml",
+    "SHELL": "/bin/zsh"
   },
 
   "permissions": {
