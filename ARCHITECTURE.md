@@ -460,6 +460,7 @@ make k8s-deploy
 - **[Network Design](docs/network-design/)** - Network topology and routing
 - **[Helper Scripts Integration](docs/HELPER_SCRIPTS_INTEGRATION.md)** - LXC deployment guide
 - **[IPv6 Routing](docs/IPV6_ROUTING_INTEGRATION.md)** - BGP configuration
+- **[Claude Code Integration](docs/CLAUDE_CODE_INTEGRATION.md)** - AI-assisted development setup
 - **[Architecture Review](ARCHITECTURE_REVIEW.md)** - AI engineering analysis
 
 ---

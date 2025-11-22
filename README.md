@@ -54,6 +54,7 @@ make k8s-deploy         # Deploy K8s workloads
 - 🔍 **[Architecture Review](ARCHITECTURE_REVIEW.md)** - AI engineering analysis
 - 🤖 **[Helper Scripts Integration](docs/HELPER_SCRIPTS_INTEGRATION.md)** - LXC deployment guide
 - 🌐 **[IPv6 Routing](docs/IPV6_ROUTING_INTEGRATION.md)** - BGP configuration
+- 🤖 **[Claude Code Integration](docs/CLAUDE_CODE_INTEGRATION.md)** - AI-assisted development setup
 - 🏗️ **[Terraform Guide](terraform/README.md)** - Infrastructure deployment
 - 📚 **[Reference Docs](docs/reference/)** - Archived v1.0 documentation
 
