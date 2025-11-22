@@ -41,6 +41,65 @@ apply: init ## Deploy infrastructure
 deploy: apply configure ## Full deployment: infrastructure + configuration
 	@echo "🎉 ORION deployment complete!"
 
+deploy-full: apply deploy-lxc configure k8s-deploy ## Complete deployment: VMs + LXC + Ansible + K8s
+	@echo "🎉 Full ORION stack deployed!"
+
+##@ LXC Containers (Helper Scripts)
+
+deploy-lxc: deploy-ai-stack deploy-infrastructure ## Deploy all LXC containers
+	@echo "✅ All LXC containers deployed!"
+
+deploy-ai-stack: ## Deploy AI/ML stack (LXC containers via helper scripts)
+	@echo "🤖 Deploying AI/ML stack with helper scripts..."
+	@echo "📦 Installing: Ollama, OpenWebUI, LiteLLM, FlowiseAI, PostgreSQL, Redis"
+	@echo ""
+	@echo "⚠️  Run these commands on your Proxmox host:"
+	@echo ""
+	@echo "# Ollama (LLM inference)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/ollama.sh)\""
+	@echo ""
+	@echo "# OpenWebUI (ChatGPT-like interface)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/openwebui.sh)\""
+	@echo ""
+	@echo "# LiteLLM (API Gateway)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/litellm.sh)\""
+	@echo ""
+	@echo "# FlowiseAI (Visual agent builder)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/flowiseai.sh)\""
+	@echo ""
+	@echo "# PostgreSQL + pgvector (Vector DB)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/postgresql.sh)\""
+	@echo ""
+	@echo "# Redis (Caching)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/redis.sh)\""
+	@echo ""
+	@echo "💡 These scripts create LXC containers automatically on your Proxmox host"
+
+deploy-infrastructure: ## Deploy infrastructure services (Minio, Nginx Proxy Manager, Wireguard)
+	@echo "🏗️  Deploying infrastructure services..."
+	@echo ""
+	@echo "⚠️  Run these commands on your Proxmox host:"
+	@echo ""
+	@echo "# Minio (S3-compatible storage)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/minio.sh)\""
+	@echo ""
+	@echo "# Nginx Proxy Manager (Reverse proxy with SSL)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/nginxproxymanager.sh)\""
+	@echo ""
+	@echo "# Wireguard (VPN for secure remote access)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/wireguard.sh)\""
+
+deploy-dev-tools: ## Deploy development tools (Gitea, N8N)
+	@echo "🛠️  Deploying development tools..."
+	@echo ""
+	@echo "⚠️  Run these commands on your Proxmox host:"
+	@echo ""
+	@echo "# Gitea (Self-hosted Git)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/gitea.sh)\""
+	@echo ""
+	@echo "# N8N (Workflow automation)"
+	@echo "bash -c \"\$$(wget -qLO - https://github.com/luci-digital/ProxmoxVE/raw/main/ct/n8n.sh)\""
+
 ##@ Configuration
 
 configure: ## Configure VMs with Ansible
@@ -118,13 +177,20 @@ quickstart: check-prereqs ## Quick start guide
 	@echo "   cp terraform/terraform.tfvars.example terraform/terraform.tfvars"
 	@echo "   # Edit terraform.tfvars with your Proxmox API token"
 	@echo ""
-	@echo "2️⃣  Deploy:"
-	@echo "   make deploy"
+	@echo "2️⃣  Deploy Infrastructure (VMs):"
+	@echo "   make apply"
 	@echo ""
-	@echo "3️⃣  Verify:"
+	@echo "3️⃣  Deploy AI/ML Stack (LXC containers):"
+	@echo "   make deploy-ai-stack  # See commands to run on Proxmox host"
+	@echo ""
+	@echo "4️⃣  Configure VMs:"
+	@echo "   make configure"
+	@echo ""
+	@echo "5️⃣  Deploy K8s Workloads:"
+	@echo "   make k8s-deploy"
+	@echo ""
+	@echo "6️⃣  Verify:"
 	@echo "   make verify"
 	@echo ""
-	@echo "4️⃣  Access:"
-	@echo "   make outputs"
-	@echo ""
+	@echo "💡 Full deployment: make deploy-full"
 	@echo "📚 Documentation: make docs"
