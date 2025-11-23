@@ -1,0 +1,134 @@
+#!/bin/bash
+
+#########################################################################################################################
+#
+# Script: orion-gateway-monitor
+# Purpose: Monitor Telus gateway connectivity and health
+# Description: Continuously monitors BGP gateway availability and alerts on failures
+#
+#########################################################################################################################
+
+# Configuration
+TELUS_GATEWAY1="${TELUS_GATEWAY1:-206.75.1.127}"
+TELUS_GATEWAY2="${TELUS_GATEWAY2:-206.75.1.47}"
+TELUS_GATEWAY3="${TELUS_GATEWAY3:-206.75.1.48}"
+CHECK_INTERVAL="${CHECK_INTERVAL:-30}"
+LOG_FILE="/var/log/orion/gateway-monitor.log"
+ALERT_FILE="/var/log/orion/gateway-alerts.log"
+STATE_FILE="/var/run/orion/gateway-state.json"
+
+# Create directories
+mkdir -p /var/log/orion /var/run/orion
+
+# Logging function
+log() {
+    local level=$1
+    shift
+    local message="$@"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "${timestamp} [${level}] ${message}" | tee -a "$LOG_FILE"
+}
+
+# Alert function
+alert() {
+    local gateway=$1
+    local status=$2
+    local message="$3"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+    echo "${timestamp} [ALERT] Gateway: ${gateway}, Status: ${status}, Message: ${message}" | tee -a "$ALERT_FILE"
+
+    # Send notification (can be extended with email/webhook)
+    logger -t orion-gateway-monitor -p daemon.warning "Gateway ${gateway} ${status}: ${message}"
+}
+
+# Check gateway function
+check_gateway() {
+    local gateway=$1
+    local name=$2
+
+    # Ping check (3 packets, 2 second timeout)
+    if ping -c 3 -W 2 "$gateway" >/dev/null 2>&1; then
+        log INFO "Gateway $name ($gateway) is UP"
+        return 0
+    else
+        log WARNING "Gateway $name ($gateway) is DOWN"
+        return 1
+    fi
+}
+
+# Update state file
+update_state() {
+    local gw1_status=$1
+    local gw2_status=$2
+    local gw3_status=$3
+
+    cat > "$STATE_FILE" <<EOF
+{
+    "timestamp": "$(date -Iseconds)",
+    "gateways": {
+        "gateway1": {
+            "ip": "$TELUS_GATEWAY1",
+            "status": "$gw1_status",
+            "name": "Telus Gateway 1"
+        },
+        "gateway2": {
+            "ip": "$TELUS_GATEWAY2",
+            "status": "$gw2_status",
+            "name": "Telus Gateway 2"
+        },
+        "gateway3": {
+            "ip": "$TELUS_GATEWAY3",
+            "status": "$gw3_status",
+            "name": "Telus Gateway 3"
+        }
+    },
+    "summary": {
+        "total": 3,
+        "up": $((gw1_status == "up" ? 1 : 0 + gw2_status == "up" ? 1 : 0 + gw3_status == "up" ? 1 : 0)),
+        "down": $((gw1_status == "down" ? 1 : 0 + gw2_status == "down" ? 1 : 0 + gw3_status == "down" ? 1 : 0))
+    }
+}
+EOF
+}
+
+# Main monitoring loop
+log INFO "ORION Gateway Monitor starting..."
+log INFO "Monitoring gateways: $TELUS_GATEWAY1, $TELUS_GATEWAY2, $TELUS_GATEWAY3"
+log INFO "Check interval: ${CHECK_INTERVAL} seconds"
+
+while true; do
+    # Check all gateways
+    gw1_status="down"
+    gw2_status="down"
+    gw3_status="down"
+
+    if check_gateway "$TELUS_GATEWAY1" "Telus Gateway 1"; then
+        gw1_status="up"
+    else
+        alert "$TELUS_GATEWAY1" "DOWN" "Telus Gateway 1 is not responding to ping"
+    fi
+
+    if check_gateway "$TELUS_GATEWAY2" "Telus Gateway 2"; then
+        gw2_status="up"
+    else
+        alert "$TELUS_GATEWAY2" "DOWN" "Telus Gateway 2 is not responding to ping"
+    fi
+
+    if check_gateway "$TELUS_GATEWAY3" "Telus Gateway 3"; then
+        gw3_status="up"
+    else
+        alert "$TELUS_GATEWAY3" "DOWN" "Telus Gateway 3 is not responding to ping"
+    fi
+
+    # Update state file
+    update_state "$gw1_status" "$gw2_status" "$gw3_status"
+
+    # Check if all gateways are down
+    if [[ "$gw1_status" == "down" && "$gw2_status" == "down" && "$gw3_status" == "down" ]]; then
+        alert "ALL" "CRITICAL" "All Telus gateways are DOWN - No internet connectivity!"
+    fi
+
+    # Sleep before next check
+    sleep "$CHECK_INTERVAL"
+done

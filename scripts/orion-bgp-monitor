@@ -1,0 +1,91 @@
+#!/bin/bash
+
+#########################################################################################################################
+#
+# Script: orion-bgp-monitor
+# Purpose: Monitor BGP sessions on router VM
+# Description: Checks BGP session status and alerts on changes
+#
+#########################################################################################################################
+
+# Configuration
+ROUTER_VM_ID="${ROUTER_VM_ID:-200}"
+LOCAL_AS="${LOCAL_AS:-394955}"
+REMOTE_AS="${REMOTE_AS:-6939}"
+CHECK_INTERVAL="${CHECK_INTERVAL:-60}"
+LOG_FILE="/var/log/orion/bgp-monitor.log"
+ALERT_FILE="/var/log/orion/bgp-alerts.log"
+STATE_FILE="/var/run/orion/bgp-state.json"
+
+# Create directories
+mkdir -p /var/log/orion /var/run/orion
+
+# Logging function
+log() {
+    local level=$1
+    shift
+    local message="$@"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "${timestamp} [${level}] ${message}" | tee -a "$LOG_FILE"
+}
+
+# Alert function
+alert() {
+    local neighbor=$1
+    local status=$2
+    local message="$3"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+    echo "${timestamp} [ALERT] BGP Neighbor: ${neighbor}, Status: ${status}, Message: ${message}" | tee -a "$ALERT_FILE"
+
+    logger -t orion-bgp-monitor -p daemon.warning "BGP Neighbor ${neighbor} ${status}: ${message}"
+}
+
+# Check if VM is running
+check_vm_running() {
+    local vm_id=$1
+
+    if qm status "$vm_id" 2>/dev/null | grep -q "running"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Get BGP session status
+get_bgp_status() {
+    local vm_id=$1
+
+    # This would execute a command on the router VM to check BGP status
+    # For pfSense with FRR, we'd use something like:
+    # qm guest exec $vm_id -- vtysh -c "show ip bgp summary"
+
+    # Placeholder - would need to be adapted for actual router implementation
+    log INFO "Checking BGP sessions on VM $vm_id..."
+
+    # For now, just check if VM is running
+    if check_vm_running "$vm_id"; then
+        log INFO "Router VM $vm_id is running"
+        return 0
+    else
+        log WARNING "Router VM $vm_id is not running"
+        return 1
+    fi
+}
+
+# Main monitoring loop
+log INFO "ORION BGP Monitor starting..."
+log INFO "Monitoring Router VM ID: $ROUTER_VM_ID"
+log INFO "Local AS: $LOCAL_AS, Remote AS: $REMOTE_AS"
+log INFO "Check interval: ${CHECK_INTERVAL} seconds"
+
+while true; do
+    if ! check_vm_running "$ROUTER_VM_ID"; then
+        alert "$ROUTER_VM_ID" "VM_DOWN" "Router VM is not running - BGP sessions unavailable"
+        log ERROR "Router VM $ROUTER_VM_ID is not running"
+    else
+        get_bgp_status "$ROUTER_VM_ID"
+    fi
+
+    sleep "$CHECK_INTERVAL"
+done

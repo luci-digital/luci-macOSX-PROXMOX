@@ -1,0 +1,30 @@
+[Unit]
+Description=ORION VM Health Watchdog
+Documentation=https://github.com/luci-digital/Dell_R730_CQ5QBM2_ORION
+After=pve-cluster.service pveproxy.service
+Requires=pve-cluster.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/orion-vm-watchdog
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=orion-vm-watchdog
+
+# Environment
+Environment="ROUTER_VM_ID=200"
+Environment="MACOS_VM_ID=100"
+Environment="CHECK_INTERVAL=30"
+Environment="RESTART_ON_FAILURE=true"
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/log/orion
+
+[Install]
+WantedBy=multi-user.target
