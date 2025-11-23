@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🚀 Dell R730 ORION - Hybrid Network Infrastructure
+# 🚀 ORION - AI-First Infrastructure Stack
 
-## OSX-PROXMOX + NixOS Router + AI Agent + BGP Integration
+## Dell R730 Proxmox VE + Terraform + Kubernetes + AI Agents
 
 ![GitHub stars](https://img.shields.io/github/stars/luchina-gabriel/osx-proxmox?style=flat-square)
 ![GitHub forks](https://img.shields.io/github/forks/luchina-gabriel/OSX-PROXMOX?style=flat-square)
@@ -13,38 +13,40 @@
 
 ---
 
-## 🎯 ORION Hybrid Architecture
+## 🎯 ORION v2.0 Architecture
 
-This repository combines the power of **OSX-PROXMOX** for macOS virtualization with a complete enterprise-grade network infrastructure for the **Dell PowerEdge R730 (CQ5QBM2)**.
+Complete **Infrastructure as Code** stack for Dell PowerEdge R730, designed from the ground up as an **AI-first, agent-driven architecture** with multi-layer infrastructure.
 
-### ✨ What's Included
+### ✨ What's New in v2.0
 
-- ✅ **Proxmox VE** - Enterprise hypervisor with web management
-- ✅ **NixOS + VyOS Router** - High-performance routing with BGP (AS 394955)
-- ✅ **AI Autonomous Agent** - Intelligent network monitoring and self-healing
-- ✅ **macOS Sequoia** - Full macOS 15 support for development
-- ✅ **iDRAC Automation** - Complete remote management via Redfish API
-- ✅ **Prometheus + Grafana** - Real-time monitoring and dashboards
-- ✅ **BGP Routing** - Multi-peer BGP with Telus (AS 6939)
+- ✅ **Infrastructure as Code** - Terraform for VMs, Ansible for configuration
+- ✅ **LXC AI/ML Stack** - Ollama, LiteLLM, FlowiseAI via helper scripts (5-minute deployment)
+- ✅ **Kubernetes on K3s** - Lightweight orchestration for Backstage + Vapor API
+- ✅ **Multi-Agent Architecture** - Proper 4-layer AI stack with specialized agents
+- ✅ **IPv6 BGP Routing** - AS394955 with 2602:F674::/48 prefix
+- ✅ **Security Through Obscurity** - "AI Maze" using Backstage + Swift/Vapor
+- ✅ **One-Command Deployment** - Complete stack via Makefile
+- ✅ **396 Helper Scripts** - Automated LXC container deployment
 
-### 🚀 Quick Start (ORION Hybrid)
+### 🚀 Quick Start
 
 ```bash
 # Clone repository
 git clone https://github.com/luci-digital/luci-macOSX-PROXMOX.git
 cd luci-macOSX-PROXMOX
 
-# Optional: Setup smart dev environment (recommended!)
-./scripts/setup-dev-env.sh
-exec zsh  # Restart shell
+# Configure Terraform
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+nano terraform/terraform.tfvars  # Add Proxmox API token
 
-# Install dependencies
-pip3 install requests
+# Deploy complete stack
+make deploy-full
 
-# Run automated deployment
-python3 deploy-orion-hybrid.py
-# OR with smart environment:
-orion-deploy
+# Or deploy in phases:
+make apply              # Deploy VMs with Terraform
+make deploy-ai-stack    # Deploy AI/ML LXC containers
+make configure          # Configure VMs with Ansible
+make k8s-deploy         # Deploy K8s workloads
 ```
 
 **Smart Development Environment** 🧠:
@@ -55,53 +57,95 @@ orion-deploy
 - 📚 [Setup Guide](DEV_ENVIRONMENT.md)
 
 **Documentation**:
-- 📘 [Hybrid Architecture Guide](ORION_HYBRID_ARCHITECTURE.md) - Complete architecture documentation
-- 🚀 [Quick Start Guide](QUICKSTART_HYBRID.md) - Get started in 5 minutes
-- 🔧 [VM Configurations](vm-configs/README.md) - NixOS configuration files
-- 📊 [Proxmox Integration](DELL_R730_ORION_PROXMOX_INTEGRATION.md) - Dell R730 specific setup
+- 📘 **[Architecture Guide](ARCHITECTURE.md)** - Complete v2.0 architecture (THIS IS THE MAIN DOC!)
+- 🔍 **[Architecture Review](ARCHITECTURE_REVIEW.md)** - AI engineering analysis
+- 🤖 **[Helper Scripts Integration](docs/HELPER_SCRIPTS_INTEGRATION.md)** - LXC deployment guide
+- 🌐 **[IPv6 Routing](docs/IPV6_ROUTING_INTEGRATION.md)** - BGP configuration
+- 🤖 **[Claude Code Integration](docs/CLAUDE_CODE_INTEGRATION.md)** - AI-assisted development setup
+- 💻 **[Development Environment](docs/DEVELOPMENT_ENVIRONMENT.md)** - Zsh, Oh My Zsh, Antigen setup
+- 🏗️ **[Terraform Guide](terraform/README.md)** - Infrastructure deployment
+- 📚 **[Reference Docs](docs/reference/)** - Archived v1.0 documentation
 
 ### 🏗️ Architecture Overview
 
 ```
-Dell R730 ORION (384GB RAM, 56 threads)
+Dell R730 ORION (56 cores, 384GB RAM)
 ├─ Proxmox VE 8.x (Hypervisor)
-│  ├─ VM 200: NixOS + VyOS Router (8 cores, 32GB)
-│  │  └─ BGP, Firewall, DHCP, DNS, NAT
-│  ├─ VM 300: AI Agent (4 cores, 16GB)
-│  │  └─ Autonomous monitoring, Prometheus, Grafana
-│  └─ VM 100: macOS Sequoia (12 cores, 64GB)
-│     └─ Development environment
-└─ iDRAC Enterprise - Full remote management
+│
+├─ Infrastructure VMs (Terraform)
+│  ├─ VM 200: Router (BIRD2 BGP, IPv6, Firewall) - 8C/32GB
+│  ├─ VM 300: AI Coordinator (Multi-agent orchestration) - 4C/16GB
+│  ├─ VM 500: NetBox (IPAM) - 4C/8GB
+│  └─ VM 600-603: K3s Cluster (1 master + 3 workers) - 16C/56GB
+│
+├─ LXC Containers (Helper Scripts - 5 min deploy)
+│  ├─ LXC 1000: Ollama (LLM inference)
+│  ├─ LXC 1001: OpenWebUI (ChatGPT-like UI)
+│  ├─ LXC 1002: LiteLLM (API gateway)
+│  ├─ LXC 1003: FlowiseAI (Visual agent builder)
+│  ├─ LXC 1004: PostgreSQL + pgvector
+│  ├─ LXC 1005: Redis
+│  ├─ LXC 1006: Minio (S3 storage)
+│  ├─ LXC 1007: Nginx Proxy Manager
+│  └─ LXC 1008: Wireguard VPN
+│
+└─ Kubernetes Workloads (K3s)
+   ├─ Infrastructure: Prometheus, Grafana, Cilium, Longhorn
+   ├─ Applications: Backstage, Vapor API (Swift)
+   └─ AI Agents: Infrastructure, Network, Security, DevOps
 ```
 
 ### 📦 Repository Structure
 
 ```
 luci-macOSX-PROXMOX/
-├── deploy-orion-hybrid.py          # Main deployment automation
-├── deploy-orion.sh                 # Legacy Proxmox deployment
-├── orion-config.json               # Hardware & VM configuration
-├── vm-configs/                     # NixOS VM configurations
-│   ├── router-vm/                  # Router VM (NixOS + VyOS)
-│   └── ai-agent-vm/                # AI monitoring agent
-├── ORION_HYBRID_ARCHITECTURE.md    # Full architecture docs
-├── QUICKSTART_HYBRID.md            # Quick start guide
-└── tools/                          # Utility scripts
+├── terraform/              # Infrastructure as Code
+│   ├── main.tf            # VM definitions
+│   ├── variables.tf       # Variables
+│   └── outputs.tf         # Outputs
+├── ansible/               # Configuration management
+│   ├── playbooks/        # Ansible playbooks
+│   └── roles/            # Ansible roles
+├── kubernetes/            # K8s manifests
+│   ├── infrastructure/   # Core services
+│   ├── applications/     # Apps (Backstage, Vapor)
+│   └── ai-agents/        # AI agents
+├── router-configs/        # BIRD2/GoBGP configs
+├── docs/                  # Documentation
+│   ├── deployment-guide/
+│   ├── ai-agent-design/
+│   └── reference/        # Archived v1.0 docs
+├── Makefile              # One-command deployment
+├── ARCHITECTURE.md       # Main architecture doc
+└── README.md             # This file
 ```
 
 ### 🌟 Key Features
 
-**Hybrid Design**: Best of both worlds - virtualization flexibility with bare-metal routing performance
+**Infrastructure as Code**: Declarative, reproducible infrastructure via Terraform + Ansible
 
-**Full Automation**: Deploy entire stack with one command via iDRAC Redfish API
+**LXC for AI/ML**: 5-minute deployment vs hours of manual K8s configuration
 
-**Declarative Configuration**: NixOS-based router and AI agent for reproducible deployments
+**4-Layer AI Stack**: Proper architecture - Inference → Orchestration → Agents → Coordinator
 
-**AI-Powered Monitoring**: Autonomous agent that monitors, alerts, and self-heals network issues
+**Security "AI Maze"**: Backstage frontend + Swift/Vapor API to confuse automated scanners
 
-**BGP Routing**: Production-grade routing with BIRD2, supporting multi-peer BGP
+**IPv6 BGP**: Production AS394955, peering with Telus AS6939, prefix 2602:F674::/48
 
-**macOS Development**: Native macOS Sequoia environment via OSX-PROXMOX
+**Hybrid Orchestration**: VMs for infra, LXC for AI/ML, K8s for apps - right tool for the job
+
+**396 Helper Scripts**: Community-maintained automation for everything from databases to VPNs
+
+### 🎯 What Makes This Different?
+
+| Aspect | v1.0 (Old) | v2.0 (Current) |
+|--------|-----------|----------------|
+| **Deployment** | 4 conflicting scripts | Single Makefile path |
+| **AI Stack** | Manual K8s manifests | 5-min LXC deployment |
+| **Infrastructure** | Bash scripts | Terraform + Ansible |
+| **Documentation** | Scattered | Consolidated |
+| **Architecture** | Ambiguous | 4-layer AI stack |
+| **Deployment Time** | 4-6 hours | ~30 minutes |
 
 ---
 
