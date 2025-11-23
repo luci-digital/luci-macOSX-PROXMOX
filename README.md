@@ -49,6 +49,13 @@ make configure          # Configure VMs with Ansible
 make k8s-deploy         # Deploy K8s workloads
 ```
 
+**Smart Development Environment** 🧠:
+- 🎯 Auto-loads when entering directory
+- ⚡ 50+ helpful commands and aliases (`orion-help`)
+- 🔑 Auto-manages SSH keys and Python venv
+- 📊 Quick access: `grafana`, `ssh-router`, `orion-status`
+- 📚 [Setup Guide](DEV_ENVIRONMENT.md)
+
 **Documentation**:
 - 📘 **[Architecture Guide](ARCHITECTURE.md)** - Complete v2.0 architecture (THIS IS THE MAIN DOC!)
 - 🔍 **[Architecture Review](ARCHITECTURE_REVIEW.md)** - AI engineering analysis
