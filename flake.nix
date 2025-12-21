@@ -132,6 +132,29 @@
             ./lxc-configs/autopve-container.nix
           ];
         };
+
+        # Proxmox VMA Images (Full VMs using official proxmox-image.nix module)
+        # These create .vma.zst files that can be restored directly in Proxmox
+
+        # Router VM VMA image
+        proxmox-router-vma = (nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./vm-configs/router-vm/proxmox-image.nix
+            ./modules/gobgp.nix
+          ];
+          specialArgs = { inherit inputs; };
+        }).config.system.build.VMA;
+
+        # AI Agent VM VMA image
+        proxmox-ai-agent-vma = (nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            ./vm-configs/ai-agent-vm/proxmox-image.nix
+            ./modules/ollama.nix
+          ];
+          specialArgs = { inherit inputs; };
+        }).config.system.build.VMA;
       };
 
       # Overlays for custom packages
@@ -346,6 +369,39 @@
 
               echo "✅ Templates built:"
               ls -lh result-*/tarball/*.tar.xz
+            ''}";
+          };
+
+          # Build all Proxmox VMA images
+          build-vma-images = {
+            type = "app";
+            program = "${pkgs.writeShellScript "build-vma-images" ''
+              set -e
+              echo "🏗️  Building Proxmox VMA images"
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              echo ""
+              echo "These are full VM images in VMA format that can be"
+              echo "restored directly in Proxmox using 'qmrestore'."
+              echo ""
+
+              echo "Building Router VMA image..."
+              nix build .#proxmox-router-vma -o result-router-vma
+
+              echo "Building AI Agent VMA image..."
+              nix build .#proxmox-ai-agent-vma -o result-ai-agent-vma
+
+              echo ""
+              echo "✅ VMA images built successfully!"
+              echo ""
+              echo "Images ready for Proxmox:"
+              ls -lh result-*-vma/*.vma.zst
+
+              echo ""
+              echo "📚 To restore in Proxmox:"
+              echo "  1. Upload VMA file to Proxmox server"
+              echo "  2. qmrestore vzdump-qemu-200-orion-router.vma.zst 200"
+              echo "  3. qmrestore vzdump-qemu-300-orion-ai-agent.vma.zst 300"
+              echo ""
             ''}";
           };
 
